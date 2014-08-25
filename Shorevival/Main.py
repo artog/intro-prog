@@ -100,8 +100,8 @@ class Player(pygame.sprite.Sprite):
         bullet = Bullet(self.angle)
 
         # Set the bullet so it is where the player is
-        bullet.position[0] = self.rect.centerx
-        bullet.position[1] = self.rect.centery
+        bullet.positionX = self.rect.centerx
+        bullet.positionY = self.rect.centery
 
         # Add the bullet to the lists
         all_sprites_list.add(bullet)
@@ -110,7 +110,7 @@ class Player(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
 
     angle = 0
-    position = [0.0,0.0]
+    positionX,positionY = 0.0,0.0
 
     def __init__(self,angle=0):
         # Call the parent class (Sprite) constructor
@@ -123,14 +123,26 @@ class Bullet(pygame.sprite.Sprite):
         self.angle = angle
 
     def update(self):
-        """ Move the bullet. """
+
         modX = 5*math.sin(math.radians(self.angle))
         modY = 5*math.cos(math.radians(self.angle))
-        print(self.position)
-        self.position[0] -= modX
-        self.position[1] -= modY
-        self.rect.x = self.position[0]
-        self.rect.y = self.position[1]
+
+        self.positionX -= modX
+        self.positionY -= modY
+
+        if self.positionX < 0:
+            self.positionX = screen_width
+
+        if self.positionX > screen_width:
+            self.positionX = 0
+
+        if self.positionY < 0:
+            self.positionY = screen_height
+
+        if self.positionY > screen_height:
+            self.positionY = 0
+        self.rect.x = self.positionX
+        self.rect.y = self.positionY
 
 
 # --- Create the window
@@ -264,7 +276,7 @@ while not done:
                 player.moving = 1
 
     # --- Game logic
-    if player.shooting and player.previousShotTime+200 < pygame.time.get_ticks():
+    if player.shooting and player.previousShotTime+150 < pygame.time.get_ticks():
         print(player.previousShotTime)
         player.shoot(bullet_list,all_sprites_list)
         player.previousShotTime = pygame.time.get_ticks()
