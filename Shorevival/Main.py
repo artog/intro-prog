@@ -54,9 +54,8 @@ class Block(pygame.sprite.Sprite):
         if self.rect.y < 0:
             self.rect.y = screen_height
 
-
 class Player(pygame.sprite.Sprite):
-    """ This class represents the Player. """
+
     moving = False
     lat_moving = False
 
@@ -64,6 +63,10 @@ class Player(pygame.sprite.Sprite):
     lat_move = 0
 
     position = [screen_width/2,screen_height/2]
+
+    shooting = False
+    previousShotTime = 0
+
     def __init__(self):
         """ Set up the player on creation. """
         # Call the parent class (Sprite) constructor
@@ -92,9 +95,23 @@ class Player(pygame.sprite.Sprite):
         self.rect = new_rect
         self.image = rotated_image
 
+    def shoot(self,bullet_list,all_sprites_list):
+
+        bullet = Bullet(self.angle)
+
+        # Set the bullet so it is where the player is
+        bullet.position[0] = self.rect.centerx
+        bullet.position[1] = self.rect.centery
+
+        # Add the bullet to the lists
+        all_sprites_list.add(bullet)
+        bullet_list.add(bullet)
+
 class Bullet(pygame.sprite.Sprite):
-    """ This class represents the bullet . """
+
     angle = 0
+    position = [0.0,0.0]
+
     def __init__(self,angle=0):
         # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
@@ -107,9 +124,13 @@ class Bullet(pygame.sprite.Sprite):
 
     def update(self):
         """ Move the bullet. """
-
-        self.rect.x -= 5*math.sin(math.radians(self.angle))
-        self.rect.y -= 5*math.cos(math.radians(self.angle))
+        modX = 5*math.sin(math.radians(self.angle))
+        modY = 5*math.cos(math.radians(self.angle))
+        print(self.position)
+        self.position[0] -= modX
+        self.position[1] -= modY
+        self.rect.x = self.position[0]
+        self.rect.y = self.position[1]
 
 
 # --- Create the window
@@ -181,6 +202,8 @@ player.rect.x = 0
 gameOver = False
 
 font = pygame.font.SysFont('Verdana',14)
+
+
 # -------- Main Program Loop -----------
 while not done:
 
@@ -191,15 +214,18 @@ while not done:
 
     pos = pygame.mouse.get_pos()
 
-    vec = pygame.math.Vector2(
-        pos[0]-player.rect.centerx,
-        pos[1]-player.rect.centery
+    # vec = pygame.math.Vector2(
+    # )
+
+    angleRad = math.atan2(
+
+        -(pos[0]-player.rect.centerx),
+        -(pos[1]-player.rect.centery)
+        # -vec.x,
+        # -vec.y
     )
 
-    angleRad = math.atan2(-vec.x,-vec.y)
-
     angle = math.degrees(angleRad)
-
     player.angle = angle
     # --- Event Processing
     for event in pygame.event.get():
@@ -207,14 +233,9 @@ while not done:
             done = True
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            # Fire a bullet if the user clicks the mouse button
-            bullet = Bullet(player.angle)
-            # Set the bullet so it is where the player is
-            bullet.rect.x = player.rect.center[0]
-            bullet.rect.y = player.rect.center[1]
-            # Add the bullet to the lists
-            all_sprites_list.add(bullet)
-            bullet_list.add(bullet)
+            player.shooting = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            player.shooting = False
         elif event.type == pygame.KEYUP:
 
             if event.key == pygame.K_a:
@@ -243,7 +264,10 @@ while not done:
                 player.moving = 1
 
     # --- Game logic
-
+    if player.shooting and player.previousShotTime+200 < pygame.time.get_ticks():
+        print(player.previousShotTime)
+        player.shoot(bullet_list,all_sprites_list)
+        player.previousShotTime = pygame.time.get_ticks()
     # Call the update() method on all the sprites
     all_sprites_list.update()
 
@@ -276,7 +300,7 @@ while not done:
     scoreSurface = font.render("Score: "+str(score),True,BLACK)
     numBlocksSurface = font.render("Blocks: "+str(len(block_list)),True,BLACK)
     screen.blit(scoreSurface,(10, 10))
-    screen.blit(numBlocksSurface,(screen_width-150,0))
+    screen.blit(numBlocksSurface,(screen_width-150,10))
 
     # Draw all the spites
     all_sprites_list.draw(screen)
