@@ -208,8 +208,8 @@ done = False
 clock = pygame.time.Clock()
 
 score = 0
-player.rect.y = 0
-player.rect.x = 0
+player.rect.y = screen_height/2
+player.rect.x = screen_width/2
 
 gameOver = False
 
@@ -219,103 +219,137 @@ font = pygame.font.SysFont('Verdana',14)
 # -------- Main Program Loop -----------
 while not done:
 
-
-    if len(pygame.sprite.spritecollide(player,block_list,False)) > 0 or gameOver:
-        # done = True
-        pass
-
-    pos = pygame.mouse.get_pos()
-
-    # vec = pygame.math.Vector2(
-    # )
-
-    angleRad = math.atan2(
-
-        -(pos[0]-player.rect.centerx),
-        -(pos[1]-player.rect.centery)
-        # -vec.x,
-        # -vec.y
-    )
-
-    angle = math.degrees(angleRad)
-    player.angle = angle
-    # --- Event Processing
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            player.shooting = True
-        elif event.type == pygame.MOUSEBUTTONUP:
-            player.shooting = False
-        elif event.type == pygame.KEYUP:
-
-            if event.key == pygame.K_a:
-                player.lat_move = 0
-
-            if event.key == pygame.K_d:
-                player.lat_move = 0
-
-
-            if event.key == pygame.K_w:
-                player.moving = 0
-            if event.key == pygame.K_s:
-                player.moving = 0
-
-        elif event.type == pygame.KEYDOWN:
-
-            if event.key == pygame.K_a:
-                player.lat_move = 1
-
-            if event.key == pygame.K_d:
-                player.lat_move = -1
-
-            if event.key == pygame.K_w:
-                player.moving = -1
-            if event.key == pygame.K_s:
-                player.moving = 1
-
-    # --- Game logic
-    if player.shooting and player.previousShotTime+150 < pygame.time.get_ticks():
-        print(player.previousShotTime)
-        player.shoot(bullet_list,all_sprites_list)
-        player.previousShotTime = pygame.time.get_ticks()
-    # Call the update() method on all the sprites
-    all_sprites_list.update()
-
-    # Calculate mechanics for each bullet
-    for bullet in bullet_list:
-
-        # See if it hit a block
-        block_hit_list = pygame.sprite.spritecollide(bullet, block_list, True)
-
-        # For each block hit, remove the bullet and add to the score
-        for block in block_hit_list:
-            bullet_list.remove(bullet)
-            all_sprites_list.remove(bullet)
-            score += 1
-            makeBlock()
-            if score % 10 == 0:
-                makeBlock()
-
-        # Remove the bullet if it flies up off the screen
-        if bullet.rect.y < -10:
-            bullet_list.remove(bullet)
-            all_sprites_list.remove(bullet)
-
-
-
-
     # Clear the screen
     screen.fill(WHITE)
 
-    scoreSurface = font.render("Score: "+str(score),True,BLACK)
-    numBlocksSurface = font.render("Blocks: "+str(len(block_list)),True,BLACK)
-    screen.blit(scoreSurface,(10, 10))
-    screen.blit(numBlocksSurface,(screen_width-150,10))
 
-    # Draw all the spites
-    all_sprites_list.draw(screen)
+    if len(pygame.sprite.spritecollide(player,block_list,False)) > 0 or gameOver:
+
+        goFont = pygame.font.SysFont('Verdana',44)
+        goHelpTextFont = pygame.font.SysFont('Verdana',18)
+
+        gameOverTextSurface = goFont.render("GAME OVER",True,BLACK)
+        gameOverHelpTextSurface = goHelpTextFont.render("Press return to start again or escape to quit",True,BLACK)
+
+        gameOverFontSize = goFont.size("GAME OVER")
+        gameOverHelpTextFontSize = goHelpTextFont.size("Press return to start again or escape to quit")
+
+        screen.blit(
+            gameOverTextSurface,
+            (
+                screen_width/2 - gameOverFontSize[0]/2,
+                screen_height/2 - gameOverFontSize[1]/2
+            )
+        )
+
+        screen.blit(
+            gameOverHelpTextSurface,
+            (
+                screen_width/2 - gameOverHelpTextFontSize[0]/2,
+                screen_height/2 - gameOverHelpTextFontSize[1]/2 + 35
+            )
+        )
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                done = True
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                gameOver = False
+                score = 0
+                tmp = block_list.copy()
+                for b in tmp:
+                    block_list.remove(b)
+                    all_sprites_list.remove(b)
+                for i in range(20):
+                    makeBlock()
+
+
+    else:
+        pos = pygame.mouse.get_pos()
+
+        # vec = pygame.math.Vector2(
+        # )
+
+        angleRad = math.atan2(
+
+            -(pos[0]-player.rect.centerx),
+            -(pos[1]-player.rect.centery)
+            # -vec.x,
+            # -vec.y
+        )
+
+        angle = math.degrees(angleRad)
+        player.angle = angle
+        # --- Event Processing
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                player.shooting = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                player.shooting = False
+            elif event.type == pygame.KEYUP:
+
+                if event.key == pygame.K_a:
+                    player.lat_move = 0
+
+                if event.key == pygame.K_d:
+                    player.lat_move = 0
+
+
+                if event.key == pygame.K_w:
+                    player.moving = 0
+                if event.key == pygame.K_s:
+                    player.moving = 0
+
+            elif event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_a:
+                    player.lat_move = 1
+
+                if event.key == pygame.K_d:
+                    player.lat_move = -1
+
+                if event.key == pygame.K_w:
+                    player.moving = -1
+                if event.key == pygame.K_s:
+                    player.moving = 1
+
+        # --- Game logic
+        if player.shooting and player.previousShotTime+150 < pygame.time.get_ticks():
+            player.shoot(bullet_list,all_sprites_list)
+            player.previousShotTime = pygame.time.get_ticks()
+        # Call the update() method on all the sprites
+        all_sprites_list.update()
+
+        # Calculate mechanics for each bullet
+        for bullet in bullet_list:
+
+            # See if it hit a block
+            block_hit_list = pygame.sprite.spritecollide(bullet, block_list, True)
+
+            # For each block hit, remove the bullet and add to the score
+            for block in block_hit_list:
+                bullet_list.remove(bullet)
+                all_sprites_list.remove(bullet)
+                score += 1
+                makeBlock()
+                if score % 10 == 0:
+                    makeBlock()
+
+            # Remove the bullet if it flies up off the screen
+            if bullet.rect.y < -10:
+                bullet_list.remove(bullet)
+                all_sprites_list.remove(bullet)
+
+        scoreSurface = font.render("Score: "+str(score),True,BLACK)
+        numBlocksSurface = font.render("Blocks: "+str(len(block_list)),True,BLACK)
+        screen.blit(scoreSurface,(10, 10))
+        screen.blit(numBlocksSurface,(screen_width-150,10))
+
+        # Draw all the spites
+        all_sprites_list.draw(screen)
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
