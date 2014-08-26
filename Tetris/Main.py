@@ -14,13 +14,13 @@ screen_height = 700
 screen = pg.display.set_mode([screen_width, screen_height])
 
 
-done = True
+done = False
 
 blocks = []
 
-currentBlock = Block(Game.lane[0])
+currentBlock = BlockShape(Game.lane[1])
 
-blocks.append(currentBlock)
+# blocks.append(currentBlock)
 blo = Block()
 game = Game(screen)
 while not done:
@@ -36,12 +36,21 @@ while not done:
             if event.key == pg.K_RIGHT:
                 currentBlock.shift(1)
 
+    if len(pg.sprite.spritecollide(currentBlock,blocks,False)) > 0:
+        currentBlock.stop()
 
-    for block in blocks:
-        block.update()
-
+    # for block in blocks:
+    #     block.update()
+    currentBlock.update()
+    print(currentBlock.rect.bottom)
+    if currentBlock.rect.bottom+1 >= 650:
+        b = currentBlock.stop()
+        currentBlock = BlockShape(Game.lane[2])
+        blocks.append(b)
     for block in blocks:
         block.draw(screen)
+
+    currentBlock.draw(screen)
 
 
 

@@ -8,9 +8,33 @@ class BlockShape(object):
     blocks = []
     shape = [[1]]
     position = [0,0]
+    rect = pg.Rect(0,0,1,1)
+
     def __init__(self,lane):
         b = Block(lane)
         self.blocks.append(b)
+        self.calcRect()
+
+    def calcRect(self):
+        top = 1000000
+        left = 1000000
+        bottom = 0
+        right = 0
+        for block in self.blocks:
+            if block.rect.x < left:
+                left = block.rect.x
+            if block.rect.y < top:
+                top = block.rect.y
+            if block.rect.bottom > bottom:
+                bottom = block.rect.bottom
+            if block.rect.right > right:
+                right = block.rect.right
+        self.rect = pg.Rect(
+            left,
+            top,
+            right-left,
+            bottom-top
+        )
 
     def draw(self,screen):
         for block in self.blocks:
@@ -19,6 +43,7 @@ class BlockShape(object):
     def update(self):
         for block in self.blocks:
             block.update()
+        self.calcRect()
 
     def rotate(self):
         r = []
@@ -27,6 +52,14 @@ class BlockShape(object):
             for j in range(len(self.shape)):
                 r[-1].append(self.shape[j][i])
         self.shape = r
+
+    def stop(self):
+        for block in self.blocks:
+            block.speed = 0
+
+    def shift(self,direction):
+        for block in self.blocks:
+            block.shift(direction)
 
 
 
