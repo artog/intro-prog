@@ -3,24 +3,40 @@ __author__ = 'iadam'
 import Colors
 import pygame as pg
 
-class BlockShape(object):
+class BlockShape():
+    def __init__(self,lanes,lane=0,y=0):
+        self.shapeBlocks = []
+        self.shape = [[1]]
+        self.position = [0,0]
 
-    blocks = []
-    shape = [[1]]
-    position = [0,0]
-    rect = pg.Rect(0,0,1,1)
+        self.lanes = lanes
+        self.lane = lane
 
-    def __init__(self,lane):
-        b = Block(lane)
-        self.blocks.append(b)
+        self.speed = 1
+
+        b = Block(lanes[lane],y,lane,lanes)
+        self.shapeBlocks.append(b)
+
         self.calcRect()
+
+    def boost(self,active):
+        if active:
+            speed = 3
+        else:
+            speed = 1
+        for block in self.shapeBlocks:
+            block.speed = speed
+
+    def copy(self):
+        b = BlockShape(self.lanes,self.lane,self.rect.y)
+        return b
 
     def calcRect(self):
         top = 1000000
         left = 1000000
         bottom = 0
         right = 0
-        for block in self.blocks:
+        for block in self.shapeBlocks:
             if block.rect.x < left:
                 left = block.rect.x
             if block.rect.y < top:
@@ -37,11 +53,11 @@ class BlockShape(object):
         )
 
     def draw(self,screen):
-        for block in self.blocks:
+        for block in self.shapeBlocks:
             block.draw(screen)
 
     def update(self):
-        for block in self.blocks:
+        for block in self.shapeBlocks:
             block.update()
         self.calcRect()
 
@@ -54,28 +70,38 @@ class BlockShape(object):
         self.shape = r
 
     def stop(self):
-        for block in self.blocks:
+        for block in self.shapeBlocks:
             block.speed = 0
 
     def shift(self,direction):
-        for block in self.blocks:
+        self.lane += direction
+        if len(self.lanes) <= self.lane:
+            self.lane = len(self.lanes)-1
+        if 0 > self.lane:
+            self.lane = 0
+
+        for block in self.shapeBlocks:
             block.shift(direction)
 
 
 
 class Block(pg.sprite.Sprite):
-    image = None
-    rect = None
-    speed = 1
-    position = [0.0,0.0]
-    def __init__(self,x=0,y=0):
+
+
+    def __init__(self,x=0,y=0,lane=0,lanes=()):
         pg.sprite.Sprite.__init__(self)
 
-        self.image = pg.Surface([24,24])
+        self.image = pg.Surface([25,25])
         self.image.fill(Colors.BLUE)
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (x,y)
+
+        self.lane = lane
+        self.lanes = lanes
+
+        self.speed = 1
+        self.position = [0.0,0.0]
 
     def update(self):
         self.position[0] += 0.05*self.speed
@@ -85,4 +111,10 @@ class Block(pg.sprite.Sprite):
         screen.blit(self.image,self.rect)
 
     def shift(self,direction):
-        self.rect.x += direction*25
+        self.lane += direction
+        if len(self.lanes) <= self.lane:
+            self.lane = len(self.lanes)-1
+        if 0 > self.lane:
+            self.lane = 0
+
+        self.rect.x = self.lanes[self.lane]
