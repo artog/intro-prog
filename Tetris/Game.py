@@ -38,9 +38,12 @@ class Game():
 
                 if event.key == pg.K_RIGHT:
                     self.currentBlock.shift(1)
+
                 if event.key == pg.K_DOWN:
                     self.currentBlock.boost(True)
 
+                if event.key == pg.K_UP:
+                    self.currentBlock.rotate()
 
     def makeNewCurrent(self):
         print(self.currentBlock)
@@ -70,7 +73,6 @@ class Game():
             block.draw(self.screen)
 
         self.currentBlock.draw(self.screen)
-
 
     def drawEnviroment(self):
         self.screen.fill(Colors.WHITE)

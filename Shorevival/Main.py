@@ -23,8 +23,6 @@ GREEN    = (   0, 255,   0)
 screen_width = 700
 screen_height = 400
 
-# --- Classes
-
 class Block(pygame.sprite.Sprite):
     """ This class represents the block. """
     xMotion = 0
@@ -145,15 +143,11 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y = self.positionY
 
 
-# --- Create the window
-
-# Initialize Pygame
 pygame.init()
 
 
 screen = pygame.display.set_mode([screen_width, screen_height])
 
-# --- Sprite lists
 
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
@@ -216,7 +210,6 @@ gameOver = False
 font = pygame.font.SysFont('Verdana',14)
 
 
-# -------- Main Program Loop -----------
 while not done:
 
     # Clear the screen
@@ -230,9 +223,11 @@ while not done:
 
         gameOverTextSurface = goFont.render("GAME OVER",True,BLACK)
         gameOverHelpTextSurface = goHelpTextFont.render("Press return to start again or escape to quit",True,BLACK)
+        gameOverScoreTextSurface = goHelpTextFont.render("Score: "+str(score),True,BLACK)
 
         gameOverFontSize = goFont.size("GAME OVER")
         gameOverHelpTextFontSize = goHelpTextFont.size("Press return to start again or escape to quit")
+        gameOverScoreTextFontSize = goHelpTextFont.size("Score: "+str(score))
 
         screen.blit(
             gameOverTextSurface,
@@ -247,6 +242,14 @@ while not done:
             (
                 screen_width/2 - gameOverHelpTextFontSize[0]/2,
                 screen_height/2 - gameOverHelpTextFontSize[1]/2 + 35
+            )
+        )
+
+        screen.blit(
+            gameOverScoreTextSurface,
+            (
+                screen_width / 2  - gameOverScoreTextFontSize[0]/2,
+                screen_height / 2 - gameOverScoreTextFontSize[1]/2 -40
             )
         )
 

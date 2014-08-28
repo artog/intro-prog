@@ -4,18 +4,25 @@ import Colors
 import pygame as pg
 
 class BlockShape():
-    def __init__(self,lanes,lane=0,y=0):
+    def __init__(self,lanes,lane=0,y=0,shape=[[1,1]]):
+
         self.shapeBlocks = []
-        self.shape = [[1]]
-        self.position = [0,0]
+        self.shape = shape
+
+        self.position = [lanes[lane],y]
+        self.rect = pg.Rect(
+            self.position[0],
+            self.position[1],
+            1,
+            1
+        )
 
         self.lanes = lanes
         self.lane = lane
 
         self.speed = 1
 
-        b = Block(lanes[lane],y,lane,lanes)
-        self.shapeBlocks.append(b)
+        self.makeBlocks()
 
         self.calcRect()
 
@@ -26,6 +33,19 @@ class BlockShape():
             speed = 1
         for block in self.shapeBlocks:
             block.speed = speed
+
+    def makeBlocks(self):
+        self.shapeBlocks = []
+        for i in range(len(self.shape)):
+            row = self.shape[i]
+            for j in range(len(row)):
+                b = Block(
+                    self.lanes[self.lane+j],
+                    self.rect.y+i*25,
+                    self.lane+j,
+                    self.lanes
+                )
+                self.shapeBlocks.append(b)
 
     def copy(self):
         b = BlockShape(self.lanes,self.lane,self.rect.y)
@@ -68,6 +88,7 @@ class BlockShape():
             for j in range(len(self.shape)):
                 r[-1].append(self.shape[j][i])
         self.shape = r
+        self.makeBlocks()
 
     def stop(self):
         for block in self.shapeBlocks:
@@ -87,7 +108,6 @@ class BlockShape():
 
 class Block(pg.sprite.Sprite):
 
-
     def __init__(self,x=0,y=0,lane=0,lanes=()):
         pg.sprite.Sprite.__init__(self)
 
@@ -101,11 +121,11 @@ class Block(pg.sprite.Sprite):
         self.lanes = lanes
 
         self.speed = 1
-        self.position = [0.0,0.0]
+        self.position = [x,y]
 
     def update(self):
-        self.position[0] += 0.05*self.speed
-        self.rect.y = int(self.position[0])
+        self.position[1] += 0.05*self.speed
+        self.rect.y = int(self.position[1])
 
     def draw(self,screen):
         screen.blit(self.image,self.rect)
